@@ -1,7 +1,15 @@
 package com.github.myon.evolsim.engine;
 
+import com.github.myon.evolsim.data.Color;
 import com.github.myon.util.Util;
 
+/**
+ * @author 0xMyon
+ *
+ * CollisionObjects may be stored in CollisionSpaces.
+ *
+ * @param <T> concrete implementation
+ */
 public abstract class CollisionObject<T extends CollisionObject<T>> {
 
 
@@ -86,6 +94,8 @@ public abstract class CollisionObject<T extends CollisionObject<T>> {
 			this.locate(space);
 		}
 	}
+
+	public abstract Color color();
 
 
 }

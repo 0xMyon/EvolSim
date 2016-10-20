@@ -1,23 +1,61 @@
 package com.github.myon.util;
 
 import com.github.myon.evolsim.Constants;
-import com.github.myon.evolsim.engine.Modifiable;
+import com.github.myon.evolsim.data.Modifiable;
 
-public class Position implements Modifiable {
+public class Position implements Modifiable<Position> {
 
 	private Double x,y;
-	private Double alpha;
+	private Double orientation;
 
-	public Position(final Double x, final Double y, final Double alpha) {
+	public Position(final Double x, final Double y, final Double orientation) {
 		this.x = x;
 		this.y = y;
-		this.alpha = alpha;
+		this.orientation = orientation;
 	}
 
 	public Position(final Position that) {
 		this.x = that.x;
 		this.y = that.y;
-		this.alpha = that.alpha;
+		this.orientation = that.orientation;
+	}
+
+	public Position(final Position left, final Position right) {
+		switch(Util.nextInt(3)) {
+		case 0:
+			this.orientation = left.orientation;
+			break;
+		case 1:
+			this.orientation = right.orientation;
+			break;
+		case 2:
+			this.orientation = (left.orientation + right.orientation)/2;
+			break;
+		}
+
+		switch(Util.nextInt(3)) {
+		case 0:
+			this.x = left.x;
+			break;
+		case 1:
+			this.x = right.x;
+			break;
+		case 2:
+			this.x = (left.x + right.x)/2;
+			break;
+		}
+
+		switch(Util.nextInt(3)) {
+		case 0:
+			this.y = left.y;
+			break;
+		case 1:
+			this.y = right.y;
+			break;
+		case 2:
+			this.y = (left.y + right.y)/2;
+			break;
+		}
 	}
 
 	public double x() {
@@ -50,12 +88,12 @@ public class Position implements Modifiable {
 		this.angle.clear();
 	}
 
-	public double alpha() {
-		return this.alpha;
+	public double orientation() {
+		return this.orientation;
 	}
 
-	public void alpha(final double alpha) {
-		this.alpha += alpha;
+	public void orientation(final double alpha) {
+		this.orientation += alpha;
 	}
 
 	public double length() {
@@ -83,7 +121,7 @@ public class Position implements Modifiable {
 			this.y += Util.nextDouble(-0.01*strength, 0.01*strength);
 			break;
 		case 2:
-			this.alpha += Util.nextAngle()/360*strength;
+			this.orientation += Util.nextAngle()/360*strength;
 			break;
 		}
 		this.angle.clear();

@@ -1,21 +1,18 @@
 package com.github.myon.evolsim;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Vector;
 
+import com.github.myon.evolsim.data.Color;
+import com.github.myon.evolsim.data.CreatureData;
 import com.github.myon.evolsim.engine.CollisionObject;
-import com.github.myon.evolsim.engine.Modifiable;
 import com.github.myon.util.Cache;
-import com.github.myon.util.Color;
-import com.github.myon.util.Tuple;
 import com.github.myon.util.Util;
 
 
-public class Creature extends CollisionObject<Creature> implements Modifiable {
+public class Creature extends CollisionObject<Creature> {
 
 	private static int ID = 0;
 
@@ -25,15 +22,13 @@ public class Creature extends CollisionObject<Creature> implements Modifiable {
 	private final int generation;
 	private final World world;
 
+	private final CreatureData data;
 
-	// none-final attributes
-	private final Map<Tuple<Neuron>, Double> connections = new HashMap<>();
-	private final Vector<Neuron> neurons = new Vector<>();
-	private final Color color;
+	protected final Vector<Neuron> neurons = new Vector<>();
 
 	private Map<Neuron, Double> state = new HashMap<>();
 	private int age = 0;
-	private double capacity;
+	private final double capacity;
 	private double energy;
 	private double orientation;
 
@@ -47,9 +42,6 @@ public class Creature extends CollisionObject<Creature> implements Modifiable {
 	public double capacity() {
 		return this.capacity;
 	}
-	public Color color() {
-		return this.color;
-	}
 	public World world() {
 		return this.world;
 	}
@@ -59,25 +51,26 @@ public class Creature extends CollisionObject<Creature> implements Modifiable {
 	public int age() {
 		return this.age;
 	}
+	@Override
+	public Color color() {
+		return this.data.color();
+	}
 
 
 	public Creature(final World world) {
 		super(world.getCollisionSpace());
 		this.world = world;
 		this.generation = 0;
-		final int numberOfNeurons = world.generator().neuronCount();
-		for(int i = 0; i < numberOfNeurons; i++) {
-			final Neuron neuron = new Neuron(this, world.generator());
+
+		this.data = new CreatureData(world.generator());
+
+
+		for(int i = 0; i < this.data.neurons(); i++) {
+			final Neuron neuron = new Neuron(this, i, this.data.neuron(i));
 			this.neurons.add(neuron);
 		}
 
-		for (final Neuron source : this.neurons) {
-			for (final Neuron target : this.neurons) {
-				this.connections.put(new Tuple<>(source,target), world.generator().generateConnection());
-			}
-		}
-
-		this.color = world.generator().generateColor();
+		//this.color = world.generator().generateColor();
 		this.orientation = Util.nextAngle();
 		this.name = world.generator().generateName();
 		this.energy = 5.0*this.neurons.size();
@@ -88,25 +81,40 @@ public class Creature extends CollisionObject<Creature> implements Modifiable {
 
 	private Creature(final Creature that, final Double x, final Double y) {
 		super(that.world.getCollisionSpace(), x, y);
+
+		this.data = new CreatureData(that.data);
+		for(int i = 0; i < this.data.neurons(); i++) {
+			final Neuron neuron = new Neuron(this, i, this.data.neuron(i));
+			this.neurons.add(neuron);
+		}
+
 		this.world = that.world;
-		this.color = new Color(that.color);
 		this.energy = that.energy * Constants.CREATURE_DEVIDE_FACTOR;
 		this.generation = that.generation+1;
 		this.orientation = Util.nextAngle();
-		final Map<Neuron,Neuron> map = new HashMap<>();
-		for(final Neuron current: that.neurons) {
-			map.put(current, new Neuron(this, current));
-		}
-		this.neurons.addAll(map.values());
-		for(final Entry<Tuple<Neuron>, Double> entry: that.connections.entrySet()) {
-			this.connections.put(new Tuple<Neuron>(map.get(entry.getKey().source), map.get(entry.getKey().target)), entry.getValue());
-		}
 		this.name = this.world.generator().generateName();
 		this.capacity = that.capacity;
 	}
 
 
 
+
+	public Creature(final Creature mother, final Creature father, final double x, final double y) {
+		super(mother.world.getCollisionSpace(), x, y);
+
+		this.data = new CreatureData(mother.data, father.data);
+		for(int i = 0; i < this.data.neurons(); i++) {
+			final Neuron neuron = new Neuron(this, i, this.data.neuron(i));
+			this.neurons.add(neuron);
+		}
+
+		this.world = mother.world;
+		this.energy = mother.energy * Constants.CREATURE_DEVIDE_FACTOR;
+		this.generation = mother.generation+1;
+		this.orientation = Util.nextAngle();
+		this.name = this.world.generator().generateName();
+		this.capacity = mother.capacity;
+	}
 
 	@Override
 	public String toString() {
@@ -127,38 +135,10 @@ public class Creature extends CollisionObject<Creature> implements Modifiable {
 
 
 
-	public Double value(final Neuron neuron) {
-		return this.state.getOrDefault(neuron, neuron.init());
+	public Double value(final int i) {
+		return this.state.getOrDefault(i, this.data.neuron(i).initial());
 	}
 
-
-	@Override
-	public void modify(final int strength) {
-		this.x(Util.nextDouble(-0.01, 0.01));
-		this.y(Util.nextDouble(-0.01, 0.01));
-		if (Util.nextInt(1000000) <= strength/this.neurons.size()) {
-			final Neuron neuron = new Neuron(this, this.world.generator());
-			this.neurons.add(neuron);
-			this.radius.clear();
-		} else if (Util.nextInt(1000) == 0) {
-			final int r = Util.nextInt(1+this.neurons.size()*6+this.neurons.size()*this.neurons.size());
-			if (r < 1) {
-				if (Util.nextBoolean()) {
-					this.color.modify(strength);
-				} else {
-					this.capacity += Util.nextDouble(-0.01*strength, 0.01*strength);
-				}
-			} else if (r < 1+this.neurons.size()*6) {
-				this.randomNeuron().modify(strength);
-			} else {
-				final Tuple<Neuron> x = new Tuple<>(this.randomNeuron(),this.randomNeuron());
-				this.connections.put(x, this.connections.getOrDefault(x, 0.0) + Util.nextDouble(-0.01*strength, 0.01*strength));
-			}
-		}
-		for (final Neuron current: this.neurons) {
-			current.relocate();
-		}
-	}
 
 
 
@@ -172,7 +152,7 @@ public class Creature extends CollisionObject<Creature> implements Modifiable {
 	private final Cache<Double> radius = new Cache<Double>() {
 		@Override
 		public Double calc() {
-			Double result = 0.0;
+			Double result = 1.0;
 			for(final Neuron current: Creature.this.neurons) {
 				result = Math.max(result, current.position().length());
 			}
@@ -234,26 +214,34 @@ public class Creature extends CollisionObject<Creature> implements Modifiable {
 
 
 	public void move(final Neuron neuron) {
-		final double e = neuron.value();
-		final double r = neuron.position().length() * Math.cos(neuron.position().alpha() - neuron.position().angle());
-		final double f = e * Math.sin(neuron.position().alpha() - neuron.position().angle());
+		final double e = neuron.value()*0.01;
+		final double r = neuron.position().length() * Math.cos(neuron.position().orientation() - neuron.position().angle());
+		final double f = e * Math.sin(neuron.position().orientation() - neuron.position().angle());
 		final double fx = f * Math.cos(this.orientation + neuron.position().angle());
 		final double fy = f * Math.sin(this.orientation + neuron.position().angle());
 		//System.out.println(this.name + " moved a:"+ (r/(2*Math.PI)) + " x:" + fx + " y:" + fy);
 		this.orientation += r;
 		this.x(fx);
 		this.y(fy);
-		this.energy -= e * 0.01;
+		this.energy -= e;
 	}
 
 
 	public void collect(final Neuron neuron) {
 		final Double size = neuron.spaceSize();
-		this.energy += neuron.value()*Constants.GLOBAL_COLLECTABLE_ENERGY/(size*size);
+		this.energy += neuron.value()*Constants.GLOBAL_COLLECTABLE_ENERGY/this.world.creatures();
 	}
 
 	public void predate(final Neuron neuron) {
-		// TODO implement
+		final double x = this.x() + Math.cos(this.orientation+neuron.position().orientation()) * neuron.position().x();
+		final double y = this.y() + Math.sin(this.orientation+neuron.position().orientation()) * neuron.position().y();
+		final Creature c = this.world.getCollisionSpace().checkPoint(x, y, this, neuron.color());
+		if (c != null) {
+			this.energy += neuron.value()*0.5;
+			c.energy -= neuron.value();
+		} else {
+			this.energy -= neuron.value();
+		}
 	}
 
 	public void donate(final Neuron neuron) {
@@ -261,16 +249,26 @@ public class Creature extends CollisionObject<Creature> implements Modifiable {
 	}
 
 	public void divide(final Neuron neuron) {
-		if (neuron.value() == 1.0) {
-			final double x = this.x() + Math.cos(this.orientation+neuron.position().alpha()) * neuron.position().x();
-			final double y = this.y() + Math.sin(this.orientation+neuron.position().alpha()) * neuron.position().y();
-			if (!this.world.getCollisionSpace().checkPoint(x, y, this)) {
-				if (this.energy * Constants.CREATURE_DEVIDE_FACTOR > this.capacity/10) {
+		if (neuron.value() > 0.5) {
+			final double x = this.x() + Math.cos(this.orientation+neuron.position().orientation()) * neuron.position().x();
+			final double y = this.y() + Math.sin(this.orientation+neuron.position().orientation()) * neuron.position().y();
+			final Creature c = this.world.getCollisionSpace().checkPoint(x, y, this, neuron.color());
+			if (this.energy * Constants.CREATURE_DEVIDE_FACTOR > this.capacity/10) {
+				if (null == c) {
+
 					final Creature child = new Creature(this, x, y);
 					child.locate(this.world.getCollisionSpace());
-					child.modify(1000);
+					child.modify(50);
 					this.world.add(child);
 					this.energy *= Constants.CREATURE_DEVIDE_FACTOR;
+
+				} else {
+					//final Creature child = new Creature(this, c, x, y);
+					//child.locate(this.world.getCollisionSpace());
+					//child.modify(50);
+					//this.world.add(child);
+					//this.energy *= Constants.CREATURE_DEVIDE_FACTOR;
+
 				}
 			}
 		}
@@ -281,14 +279,11 @@ public class Creature extends CollisionObject<Creature> implements Modifiable {
 
 
 
-	public Collection<Neuron> neurons() {
-		return this.neurons;
+	public int neurons() {
+		return this.data.neurons();
 	}
-
-
-
-	public Double connection(final Neuron source, final Neuron target) {
-		return this.connections.getOrDefault(new Tuple<>(source,target),0.0);
+	public double connection(final int source, final int target) {
+		return this.data.connection(source, target);
 	}
 
 
@@ -337,6 +332,12 @@ public class Creature extends CollisionObject<Creature> implements Modifiable {
 		for(final Neuron current: this.neurons) {
 			current.locate(null);
 		}
+	}
+
+	public void modify(final int strength) {
+		this.x(Util.nextDouble(-0.1, 0.1));
+		this.y(Util.nextDouble(-0.1, 0.1));
+		this.data.modify(strength);
 	}
 
 

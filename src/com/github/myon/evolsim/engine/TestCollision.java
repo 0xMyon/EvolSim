@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import com.github.myon.evolsim.data.Color;
 import com.github.myon.util.Util;
 
 public class TestCollision {
@@ -18,6 +19,10 @@ public class TestCollision {
 		@Override
 		public double r() {
 			return 1.0;
+		}
+		@Override
+		public Color color() {
+			return null;
 		}
 
 	}
@@ -42,7 +47,7 @@ public class TestCollision {
 				current.y(Util.nextDouble(-1.0, 1.0));
 				space.checkPoint(
 						Util.nextDouble(0.0, CollisionSpace.SPACE_ROOT_SIZE),
-						Util.nextDouble(0.0, CollisionSpace.SPACE_ROOT_SIZE), null);
+						Util.nextDouble(0.0, CollisionSpace.SPACE_ROOT_SIZE), null, null);
 				if (Util.nextInt(100) == 0) {
 					current.locate(null);
 					it.remove();

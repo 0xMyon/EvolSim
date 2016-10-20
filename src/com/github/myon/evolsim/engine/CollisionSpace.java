@@ -3,6 +3,7 @@ package com.github.myon.evolsim.engine;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.github.myon.evolsim.data.Color;
 import com.github.myon.util.Statistics;
 import com.github.myon.util.Util;
 
@@ -183,34 +184,34 @@ public class CollisionSpace<T extends CollisionObject<T>> {
 
 
 
-	public boolean checkPoint(final Double x, final Double y, final T self) {
+	public T checkPoint(final Double x, final Double y, final T self, final Color color) {
 		Statistics.INSTANCE.add("CollisionSpace::checkPoint", 1);
 		final long time = System.currentTimeMillis();
 		try {
 			for(final CollisionObject<T> object : this.leafObjects) {
-				if (object != self && Util.PointInCircle(x,y,object.x(), object.y(), object.r())) {
-					return true;
+				if (object != self && Util.PointInCircle(x,y,object.x(), object.y(), object.r()) && color.match(object.color())) {
+					return (T)object;
 				}
 			}
 			for(final CollisionObject<T> object : this.edgeObjects) {
-				if (object != self && Util.PointInCircle(x,y,object.x(), object.y(), object.r())) {
-					return true;
+				if (object != self && Util.PointInCircle(x,y,object.x(), object.y(), object.r()) && color.match(object.color())) {
+					return (T)object;
 				}
 			}
 			if (x < this.x + this.size/2) {
-				if (y < this.y + this.size/2 && this.leftbottom != null && this.leftbottom.checkPoint(x, y, self)) {
-					return true;
-				} else if (y > this.y + this.size/2 && this.lefttop != null && this.lefttop.checkPoint(x, y, self)) {
-					return true;
+				if (y < this.y + this.size/2 && this.leftbottom != null) {
+					return this.leftbottom.checkPoint(x, y, self, color);
+				} else if (y > this.y + this.size/2 && this.lefttop != null) {
+					return this.lefttop.checkPoint(x, y, self, color);
 				}
 			} else if (x > this.x + this.size/2) {
-				if (y < this.y + this.size/2 && this.rightbottom != null && this.rightbottom.checkPoint(x, y, self)) {
-					return true;
-				} else if (y > this.y + this.size/2 && this.righttop != null && this.righttop.checkPoint(x, y, self)) {
-					return true;
+				if (y < this.y + this.size/2 && this.rightbottom != null) {
+					return this.rightbottom.checkPoint(x, y, self, color);
+				} else if (y > this.y + this.size/2 && this.righttop != null) {
+					return this.righttop.checkPoint(x, y, self, color);
 				}
 			}
-			return false;
+			return null;
 		} finally {
 			Statistics.INSTANCE.add("CollisionSpace::checkPoint time", ((double)System.currentTimeMillis()-time)/1000);
 		}

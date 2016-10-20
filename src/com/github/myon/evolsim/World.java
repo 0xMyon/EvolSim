@@ -24,7 +24,7 @@ public class World {
 
 	private final Vector<Creature> creatures = new Vector<>();
 
-	private final Generator generator = new DefaultGenerator();
+	private final Generator generator = DefaultGenerator.INSTANCE;
 
 	public void step() {
 		Statistics.INSTANCE.reset();
@@ -44,7 +44,7 @@ public class World {
 				this.creatures.add(add);
 			}
 
-			while(this.creatures.size() > 100000) {
+			while(this.creatures.size() > 1000) {
 				final int kill_index = Util.nextInt(this.creatures.size()-1);
 				final Creature kill = this.creatures.get(kill_index);
 				kill.kill();
@@ -80,6 +80,10 @@ public class World {
 		return this.generator;
 	}
 
+	public int creatures() {
+		return this.creatures.size();
+	}
+
 	private final Set<Creature> newborns = new HashSet<>();
 
 	public void add(final Creature creature) {
@@ -96,10 +100,10 @@ public class World {
 		for (final Creature creature : this.creatures) {
 			types.put(creature.species(), types.getOrDefault(creature.species(), 0)+1);
 			if (!creature.isActive()) {
-				gc.setStroke(javafx.scene.paint.Color.rgb(creature.color().r(), creature.color().g(), creature.color().b()));
+				gc.setStroke(javafx.scene.paint.Color.rgb(creature.color().red(), creature.color().green(), creature.color().blue()));
 				gc.strokeOval(creature.x()*this.zoom+this.centerX - creature.radius()*this.zoom/2, creature.y()*this.zoom+this.centerY - creature.radius()*this.zoom/2, creature.radius()*this.zoom, creature.radius()*this.zoom);
 			} else {
-				gc.setFill(javafx.scene.paint.Color.rgb(creature.color().r(), creature.color().g(), creature.color().b()));
+				gc.setFill(javafx.scene.paint.Color.rgb(creature.color().red(), creature.color().green(), creature.color().blue()));
 				gc.fillOval(creature.x()*this.zoom+this.centerX - creature.radius()*this.zoom/2, creature.y()*this.zoom+this.centerY - creature.radius()*this.zoom/2, creature.radius()*this.zoom, creature.radius()*this.zoom);
 			}
 		}
@@ -135,16 +139,16 @@ public class World {
 		gc.setLineWidth(5);
 		gc.setFill(Color.WHITE);
 		gc.fillOval(10, 512-10-128, 128, 128);
-		gc.setStroke(javafx.scene.paint.Color.rgb(this.selected.color().r(), this.selected.color().g(), this.selected.color().b()));
+		gc.setStroke(javafx.scene.paint.Color.rgb(this.selected.color().red(), this.selected.color().green(), this.selected.color().blue()));
 		gc.strokeOval(10, 512-10-128, 128, 128);
 
 		gc.setLineWidth(2);
-		for(final Neuron n : this.selected.neurons()) {
-			if (this.selected.value(n) == 1.0) {
-				gc.setFill(javafx.scene.paint.Color.rgb(n.color().r(), n.color().g(), n.color().b()));
+		for(final Neuron n : this.selected.neurons) {
+			if (n.value() > 0.5) {
+				gc.setFill(javafx.scene.paint.Color.rgb(n.color().red(), n.color().green(), n.color().blue()));
 				gc.fillOval(10+64+(n.position().x()/this.selected.radius()*64)-World.neuronSize/2, 512-10-64+(n.position().y()/this.selected.radius()*64)-World.neuronSize/2, World.neuronSize, World.neuronSize);
 			} else {
-				gc.setStroke(javafx.scene.paint.Color.rgb(n.color().r(), n.color().g(), n.color().b()));
+				gc.setStroke(javafx.scene.paint.Color.rgb(n.color().red(), n.color().green(), n.color().blue()));
 				gc.strokeOval(10+64+(n.position().x()/this.selected.radius()*64)-World.neuronSize/2, 512-10-64+(n.position().y()/this.selected.radius()*64)-World.neuronSize/2, World.neuronSize, World.neuronSize);
 			}
 			gc.setFill(Color.BLACK);

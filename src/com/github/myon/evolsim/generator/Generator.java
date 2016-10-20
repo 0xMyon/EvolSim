@@ -1,16 +1,16 @@
 package com.github.myon.evolsim.generator;
 
 import com.github.myon.evolsim.NeuronType;
-import com.github.myon.util.Color;
+import com.github.myon.evolsim.data.Color;
 import com.github.myon.util.Position;
 
 public interface Generator {
 
 	int neuronCount();
 
-	Double generateSchwellwert();
+	double generateThreshold();
 
-	Double generateInitial();
+	double generateInitial();
 
 	NeuronType generateNeuronType();
 
@@ -22,9 +22,9 @@ public interface Generator {
 
 	String generateName();
 
-	Double generateConnection();
+	double generateConnection();
 
-	Double generateCapacity();
+	double generateCapacity();
 
 
 }

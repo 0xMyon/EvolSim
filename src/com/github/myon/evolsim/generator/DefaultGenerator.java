@@ -1,11 +1,14 @@
 package com.github.myon.evolsim.generator;
 
 import com.github.myon.evolsim.NeuronType;
-import com.github.myon.util.Color;
+import com.github.myon.evolsim.data.Color;
 import com.github.myon.util.Position;
 import com.github.myon.util.Util;
 
 public class DefaultGenerator implements Generator {
+
+	public static final Generator INSTANCE = new DefaultGenerator();
+
 
 	@Override
 	public int neuronCount() {
@@ -13,12 +16,12 @@ public class DefaultGenerator implements Generator {
 	}
 
 	@Override
-	public Double generateSchwellwert() {
+	public double generateThreshold() {
 		return Util.nextDouble(-10.0, 10.0);
 	}
 
 	@Override
-	public Double generateInitial() {
+	public double generateInitial() {
 		return Util.nextDouble(-10.0, 10.0);
 	}
 
@@ -67,14 +70,15 @@ public class DefaultGenerator implements Generator {
 	}
 
 	@Override
-	public Double generateConnection() {
+	public double generateConnection() {
 		return Util.nextDouble(-10.0, 10.0);
 	}
 
 	@Override
-	public Double generateCapacity() {
+	public double generateCapacity() {
 		return Util.nextDouble(100.0, 500.0);
 	}
+
 
 
 }

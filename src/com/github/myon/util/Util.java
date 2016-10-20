@@ -33,6 +33,11 @@ public class Util {
 		return r > Util.distance(cx, cy, x, y);
 	}
 
+	public static byte[] nextBytes(final int size) {
+		final byte[] result = new byte[size];
+		Util.random.nextBytes(result);
+		return result;
+	}
 
 
 }
