@@ -1,4 +1,6 @@
-package com.github.myon.evolsim;
+package com.github.myon.evolsim.main;
+
+import com.github.myon.evolsim.World;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;

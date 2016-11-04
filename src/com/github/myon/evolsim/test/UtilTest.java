@@ -1,9 +1,9 @@
-package com.github.myon.evolsim;
+package com.github.myon.evolsim.test;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.github.myon.util.Position;
+import com.github.myon.evolsim.data.Position;
 
 
 

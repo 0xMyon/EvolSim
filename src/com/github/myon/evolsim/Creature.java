@@ -1,5 +1,6 @@
 package com.github.myon.evolsim;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -21,7 +22,7 @@ public class Creature extends CollisionObject<Creature> {
 	private final int id = Creature.ID++;
 	private final String name;
 	private final int generation;
-	private final World world;
+	private final WeakReference<World> world;
 
 	private final CreatureData data;
 
@@ -44,7 +45,7 @@ public class Creature extends CollisionObject<Creature> {
 		return this.capacity;
 	}
 	public World world() {
-		return this.world;
+		return this.world.get();
 	}
 	public String name() {
 		return this.name;
@@ -52,6 +53,7 @@ public class Creature extends CollisionObject<Creature> {
 	public int age() {
 		return this.age;
 	}
+
 	@Override
 	public Color color() {
 		return this.data.color();
@@ -60,7 +62,7 @@ public class Creature extends CollisionObject<Creature> {
 
 	public Creature(final World world) {
 		super(world.getCollisionSpace());
-		this.world = world;
+		this.world = new WeakReference<>(world);
 		this.generation = 0;
 
 		this.data = new CreatureData(world.generator());
@@ -81,7 +83,7 @@ public class Creature extends CollisionObject<Creature> {
 
 
 	private Creature(final Creature that, final Double x, final Double y) {
-		super(that.world.getCollisionSpace(), x, y);
+		super(that.world.get().getCollisionSpace(), x, y);
 
 		this.data = new CreatureData(that.data);
 		for(int i = 0; i < this.data.neurons(); i++) {
@@ -93,7 +95,7 @@ public class Creature extends CollisionObject<Creature> {
 		this.energy = that.energy * Constants.CREATURE_DEVIDE_FACTOR();
 		this.generation = that.generation+1;
 		this.orientation = Util.nextAngle();
-		this.name = this.world.generator().generateName();
+		this.name = this.world.get().generator().generateName();
 		this.capacity = that.capacity;
 	}
 
@@ -101,7 +103,7 @@ public class Creature extends CollisionObject<Creature> {
 
 
 	public Creature(final Creature mother, final Creature father, final double x, final double y) {
-		super(mother.world.getCollisionSpace(), x, y);
+		super(mother.world.get().getCollisionSpace(), x, y);
 
 		this.data = new CreatureData(mother.data, father.data);
 		for(int i = 0; i < this.data.neurons(); i++) {
@@ -113,7 +115,7 @@ public class Creature extends CollisionObject<Creature> {
 		this.energy = mother.energy * Constants.CREATURE_DEVIDE_FACTOR();
 		this.generation = mother.generation+1;
 		this.orientation = Util.nextAngle();
-		this.name = this.world.generator().generateName();
+		this.name = this.world.get().generator().generateName();
 		this.capacity = mother.capacity;
 	}
 
@@ -162,7 +164,7 @@ public class Creature extends CollisionObject<Creature> {
 			this.energy = this.capacity;
 		}
 
-		final Creature that = this.world.getCollisionSpace().checkPoint(this.x(), this.y(), this, null);
+		final Creature that = this.world.get().getCollisionSpace().checkPoint(this.x(), this.y(), this, null);
 		if (that != null) {
 			this.x(Math.min(0.01/(this.x() - that.x()), this.radius()));
 			this.y(Math.min(0.01/(this.y() - that.y()), this.radius()));
@@ -238,7 +240,7 @@ public class Creature extends CollisionObject<Creature> {
 	public void predate(final Neuron neuron) {
 		final double x = this.x() + Math.cos(this.orientation+neuron.position().orientation()) * neuron.position().x();
 		final double y = this.y() + Math.sin(this.orientation+neuron.position().orientation()) * neuron.position().y();
-		final Creature that = this.world.getCollisionSpace().checkPoint(x, y, this, neuron.color());
+		final Creature that = this.world.get().getCollisionSpace().checkPoint(x, y, this, neuron.color());
 		if (that != null) {
 			this.energy += neuron.value()*0.5;
 			that.energy -= neuron.value();
@@ -250,7 +252,7 @@ public class Creature extends CollisionObject<Creature> {
 	public void donate(final Neuron neuron) {
 		final double x = this.x() + Math.cos(this.orientation+neuron.position().orientation()) * neuron.position().x();
 		final double y = this.y() + Math.sin(this.orientation+neuron.position().orientation()) * neuron.position().y();
-		final Creature that = this.world.getCollisionSpace().checkPoint(x, y, this, neuron.color());
+		final Creature that = this.world.get().getCollisionSpace().checkPoint(x, y, this, neuron.color());
 		if (that != null) {
 			that.energy += neuron.value()*0.5;
 			this.energy -= neuron.value();
@@ -263,15 +265,15 @@ public class Creature extends CollisionObject<Creature> {
 		if (neuron.value() > 0.5) {
 			final double x = this.x() + Math.cos(this.orientation+neuron.position().orientation()) * neuron.position().x();
 			final double y = this.y() + Math.sin(this.orientation+neuron.position().orientation()) * neuron.position().y();
-			final Creature c = this.world.getCollisionSpace().checkPoint(x, y, this, neuron.color());
+			final Creature c = this.world.get().getCollisionSpace().checkPoint(x, y, this, neuron.color());
 			if (this.energy * Constants.CREATURE_DEVIDE_FACTOR() > this.capacity/10)
 			{
 				if (null == c) {
 
 					final Creature child = new Creature(this, x, y);
-					child.locate(this.world.getCollisionSpace());
+					child.locate(this.world.get().getCollisionSpace());
 					child.modify(50);
-					this.world.add(child);
+					this.world.get().add(child);
 					this.energy *= Constants.CREATURE_DEVIDE_FACTOR();
 
 				} else {
@@ -357,7 +359,7 @@ public class Creature extends CollisionObject<Creature> {
 	public void locate(final CollisionSpace<Creature> space) {
 		super.locate(space);
 		for(final Neuron n : this.neurons) {
-			n.locate(this.world.getCollectorSpace());
+			n.locate(this.world.get().getCollectorSpace());
 		}
 	}
 

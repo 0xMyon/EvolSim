@@ -9,7 +9,7 @@ import com.github.myon.util.Util;
 
 public class CollisionSpace<T extends CollisionObject<T>> {
 
-	protected final static Double SPACE_ROOT_SIZE = 512.0;
+	public final static Double SPACE_ROOT_SIZE = 512.0;
 	protected final static Integer LEAF_MAX_OBJECTS_BEFORE_SPLITTING = 10;
 
 	private final HorizontalPosition parent_H;
@@ -152,25 +152,25 @@ public class CollisionSpace<T extends CollisionObject<T>> {
 	private CollisionSpace<T> leftbottom, lefttop, righttop, rightbottom;
 	private CollisionSpace<T> LeftBottom() {
 		if (this.leftbottom == null) {
-			this.leftbottom = new CollisionSpace<T>(this, HorizontalPosition.BOTTOM, VerticalPosition.LEFT);
+			this.leftbottom = new CollisionSpace<>(this, HorizontalPosition.BOTTOM, VerticalPosition.LEFT);
 		}
 		return this.leftbottom;
 	}
 	private CollisionSpace<T> LeftTop() {
 		if (this.lefttop == null) {
-			this.lefttop = new CollisionSpace<T>(this, HorizontalPosition.TOP, VerticalPosition.LEFT);
+			this.lefttop = new CollisionSpace<>(this, HorizontalPosition.TOP, VerticalPosition.LEFT);
 		}
 		return this.lefttop;
 	}
 	private CollisionSpace<T> RightTop() {
 		if (this.righttop == null) {
-			this.righttop = new CollisionSpace<T>(this, HorizontalPosition.TOP, VerticalPosition.RIGHT);
+			this.righttop = new CollisionSpace<>(this, HorizontalPosition.TOP, VerticalPosition.RIGHT);
 		}
 		return this.righttop;
 	}
 	private CollisionSpace<T> RightBottom() {
 		if (this.rightbottom == null) {
-			this.rightbottom = new CollisionSpace<T>(this, HorizontalPosition.BOTTOM, VerticalPosition.RIGHT);
+			this.rightbottom = new CollisionSpace<>(this, HorizontalPosition.BOTTOM, VerticalPosition.RIGHT);
 		}
 		return this.rightbottom;
 	}
@@ -184,6 +184,7 @@ public class CollisionSpace<T extends CollisionObject<T>> {
 
 
 
+	@SuppressWarnings("unchecked")
 	public T checkPoint(final Double x, final Double y, final T self, final Color color) {
 		Statistics.INSTANCE.add("CollisionSpace::checkPoint", 1);
 		final long time = System.currentTimeMillis();

@@ -2,8 +2,8 @@ package com.github.myon.evolsim;
 
 import com.github.myon.evolsim.data.Color;
 import com.github.myon.evolsim.data.NeuronData;
+import com.github.myon.evolsim.data.Position;
 import com.github.myon.evolsim.engine.CollisionObject;
-import com.github.myon.util.Position;
 
 
 public class Neuron extends CollisionObject<Neuron> {

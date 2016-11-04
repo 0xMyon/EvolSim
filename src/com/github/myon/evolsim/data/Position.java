@@ -1,7 +1,8 @@
-package com.github.myon.util;
+package com.github.myon.evolsim.data;
 
 import com.github.myon.evolsim.Constants;
-import com.github.myon.evolsim.data.Modifiable;
+import com.github.myon.util.Cache;
+import com.github.myon.util.Util;
 
 public class Position implements Modifiable<Position> {
 

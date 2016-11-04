@@ -2,7 +2,7 @@ package com.github.myon.evolsim.generator;
 
 import com.github.myon.evolsim.NeuronType;
 import com.github.myon.evolsim.data.Color;
-import com.github.myon.util.Position;
+import com.github.myon.evolsim.data.Position;
 
 public interface Generator {
 

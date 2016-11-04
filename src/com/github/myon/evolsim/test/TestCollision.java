@@ -1,4 +1,4 @@
-package com.github.myon.evolsim.engine;
+package com.github.myon.evolsim.test;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -7,6 +7,8 @@ import java.util.Set;
 import org.junit.Test;
 
 import com.github.myon.evolsim.data.Color;
+import com.github.myon.evolsim.engine.CollisionObject;
+import com.github.myon.evolsim.engine.CollisionSpace;
 import com.github.myon.util.Util;
 
 public class TestCollision {
