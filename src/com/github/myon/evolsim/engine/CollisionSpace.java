@@ -189,12 +189,12 @@ public class CollisionSpace<T extends CollisionObject<T>> {
 		final long time = System.currentTimeMillis();
 		try {
 			for(final CollisionObject<T> object : this.leafObjects) {
-				if (object != self && Util.PointInCircle(x,y,object.x(), object.y(), object.r()) && color.match(object.color())) {
+				if (object != self && Util.PointInCircle(x,y,object.x(), object.y(), object.r()) && object.color().match(color)) {
 					return (T)object;
 				}
 			}
 			for(final CollisionObject<T> object : this.edgeObjects) {
-				if (object != self && Util.PointInCircle(x,y,object.x(), object.y(), object.r()) && color.match(object.color())) {
+				if (object != self && Util.PointInCircle(x,y,object.x(), object.y(), object.r()) && object.color().match(color)) {
 					return (T)object;
 				}
 			}

@@ -44,7 +44,7 @@ public class World {
 				this.creatures.add(add);
 			}
 
-			while(this.creatures.size() > 1000) {
+			while(this.creatures.size() > Constants.MAX_CREATURES) {
 				final int kill_index = Util.nextInt(this.creatures.size()-1);
 				final Creature kill = this.creatures.get(kill_index);
 				kill.kill();
@@ -55,9 +55,9 @@ public class World {
 			final Iterator<Creature> it = this.creatures.iterator();
 			while(it.hasNext()) {
 				final Creature current = it.next();
-				current.modify(5);
+				current.modify(1);
 				current.step();
-				if (current.isDead()) {
+				if (current.isDead() || Util.nextInt(Constants.MAX_CREATURES) == 0) {
 					current.cleanup();
 					it.remove();
 				}

@@ -22,7 +22,7 @@ public class DefaultGenerator implements Generator {
 
 	@Override
 	public double generateInitial() {
-		return Util.nextDouble(-10.0, 10.0);
+		return Util.nextDouble(0.0, 1.0);
 	}
 
 	@Override

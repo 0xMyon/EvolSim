@@ -9,10 +9,16 @@ public class Constants {
 
 	public static final Double WORLD_SIZE = 16.0;
 
-	public static final Double GLOBAL_COLLECTABLE_ENERGY = 10.0;
+	public static final int MAX_CREATURES = 1000;
+
+	public static Double GLOBAL_COLLECTABLE_ENERGY() {
+		return 10.0;
+	}
 
 	// energy factor each creature after division
-	public static final Double CREATURE_DEVIDE_FACTOR = 0.5;
+	public static Double CREATURE_DEVIDE_FACTOR() {
+		return 0.45;
+	}
 
 
 }

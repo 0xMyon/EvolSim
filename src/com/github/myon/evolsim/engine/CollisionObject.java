@@ -58,7 +58,7 @@ public abstract class CollisionObject<T extends CollisionObject<T>> {
 		while (this.x > CollisionSpace.SPACE_ROOT_SIZE) {
 			this.x -= CollisionSpace.SPACE_ROOT_SIZE;
 		}
-		this.relocate();
+		//this.relocate();
 	}
 
 	public void y(final Double y) {
@@ -69,7 +69,7 @@ public abstract class CollisionObject<T extends CollisionObject<T>> {
 		while (this.y > CollisionSpace.SPACE_ROOT_SIZE) {
 			this.y -= CollisionSpace.SPACE_ROOT_SIZE;
 		}
-		this.relocate();
+		//this.relocate();
 	}
 
 	public void relocate() {

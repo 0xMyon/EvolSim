@@ -57,7 +57,7 @@ public class CreatureData implements Modifiable<CreatureData> {
 			this.connections.put(i, m);
 		}
 
-		if (Util.nextInt(that.neurons.size() * 500) == 0) {
+		if (Util.nextInt(that.neurons.size()*that.neurons.size() * 100) == 0) {
 
 			System.out.println(that.neurons()+1);
 

@@ -34,7 +34,7 @@ public class Color extends Anything implements Modifiable<Color> {
 
 
 	public boolean match(final Color that) {
-		return (this.r & that.r) != 0 || (this.g & that.g) != 0 || (this.b & that.b) != 0;
+		return (that == null) || (this.r & that.r) != 0 || (this.g & that.g) != 0 || (this.b & that.b) != 0;
 	}
 
 
