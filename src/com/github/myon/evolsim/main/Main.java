@@ -22,7 +22,7 @@ public class Main extends Application {
 
 	@Override
 	public void start(final Stage primaryStage) throws Exception {
-		primaryStage.setTitle( "Example" );
+		primaryStage.setTitle( "Evolution!" );
 
 
 
@@ -70,7 +70,6 @@ public class Main extends Application {
 			@Override
 			public void handle(final long currentNanoTime)
 			{
-				world.step();
 				world.draw(gc);
 			}
 		}.start();

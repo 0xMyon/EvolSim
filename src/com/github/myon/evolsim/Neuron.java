@@ -3,12 +3,11 @@ package com.github.myon.evolsim;
 import com.github.myon.evolsim.data.Color;
 import com.github.myon.evolsim.data.NeuronData;
 import com.github.myon.evolsim.data.Position;
-import com.github.myon.evolsim.engine.CollisionObject;
 
 
-public class Neuron extends CollisionObject<Neuron> {
+public class Neuron {
 
-	private final Creature creature; 
+	private final Creature creature;
 
 	private final int id;
 	private final NeuronData data;
@@ -18,15 +17,6 @@ public class Neuron extends CollisionObject<Neuron> {
 		this.creature = creature;
 		this.id = id;
 		this.data = data;
-	}
-
-	@Override
-	public void relocate() {
-		if (this.type() == NeuronType.Collector) {
-			this.relocate(this.creature().world().getCollectorSpace());
-		} else {
-			this.locate(null);
-		}
 	}
 
 
@@ -135,19 +125,14 @@ public class Neuron extends CollisionObject<Neuron> {
 		}
 	}
 
-	@Override
-	public double r() {
+
+	public double getRadius() {
 		return 0.0;
 	}
 
 
-
-
-
-
-
-
-
-
+	public Color getColor() {
+		return this.data.color();
+	}
 
 }

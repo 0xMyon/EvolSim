@@ -2,23 +2,23 @@ package com.github.myon.evolsim;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.Vector;
 
-import com.github.myon.evolsim.engine.CollisionSpace;
+import com.github.myon.evolsim.engine.LocationManager;
+import com.github.myon.evolsim.engine.WorkItem;
+import com.github.myon.evolsim.engine.Worker;
 import com.github.myon.evolsim.generator.DefaultGenerator;
 import com.github.myon.evolsim.generator.Generator;
+import com.github.myon.gol.GameOfLife;
 import com.github.myon.util.Statistics;
 import com.github.myon.util.Util;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class World {
+public class World implements WorkItem {
 
 	public int age = 0;
 
@@ -26,73 +26,71 @@ public class World {
 
 	private final Generator generator = DefaultGenerator.INSTANCE;
 
-	public void step() {
-		Statistics.INSTANCE.reset();
-		//Statistics.INSTANCE.add("#CollisionSpace", this.space.count());
-		//Statistics.INSTANCE.add("#CollisionSpace coll", this.collectors.count());
-		Statistics.INSTANCE.add("#Creatures", this.creatures.size());
+	public World() {
+		this.worker.add(this);
+	}
 
-		final long time = System.currentTimeMillis();
-		try {
+	private GameOfLife gol = new GameOfLife(512);
 
-			//System.out.println("Year "+this.age+": "+this.creatures.size());
-			this.age++;
+	@Override
+	public void run() {
+		this.age++;
 
-			while (this.creatures.size() < 50) {
-				final Creature add = new Creature(this);
-				add.locate(this.space);
-				this.creatures.add(add);
-			}
+		Statistics.INSTANCE.add("#Space", this.getCollisionSpace().count());
 
-			while(this.creatures.size() > Constants.MAX_CREATURES) {
-				final int kill_index = Util.nextInt(this.creatures.size()-1);
-				final Creature kill = this.creatures.get(kill_index);
-				kill.kill();
-				this.creatures.remove(kill);
-				kill.cleanup();
-			}
-
-			final Iterator<Creature> it = this.creatures.iterator();
-			while(it.hasNext()) {
-				final Creature current = it.next();
-				current.modify(1);
-				current.step();
-				if (current.isDead() || Util.nextInt(Constants.MAX_CREATURES) == 0) {
-					current.cleanup();
-					it.remove();
-				}
-			}
-			this.creatures.addAll(this.newborns);
-			this.newborns.clear();
-
-		} finally {
-			Statistics.INSTANCE.add("FPS", 1.0/(((double)System.currentTimeMillis()-time)/1000));
+		while (this.size() < 50) {
+			this.add(new Creature(this));
 		}
+
+		this.gol = this.gol.next();
+
+		/*
+		while(this.creatures.size() > Constants.MAX_CREATURES) {
+			final int kill_index = Util.nextInt(this.creatures.size()-1);
+			final Creature creature = this.creatures.get(kill_index);
+			creature.kill();
+			this.remove(creature);
+		}
+		 */
+
+		Statistics.INSTANCE.reset();
+
 	}
 
 
-	public void remove(final Creature creature) {
-		this.creatures.remove(creature);
-		creature.cleanup();
+	private synchronized int size() {
+		return this.creatures.size();
 	}
 
 	public Generator generator() {
 		return this.generator;
 	}
 
-	public int creatures() {
+	public synchronized int creatures() {
 		return this.creatures.size();
 	}
 
-	private final Set<Creature> newborns = new HashSet<>();
 
-	public void add(final Creature creature) {
-		this.newborns.add(creature);
+	public synchronized void add(final Creature creature) {
+		creature.locate(this.space);
+		this.creatures.add(creature);
+		this.worker.add(creature);
 	}
 
-	public void draw(final GraphicsContext gc) {
+	public synchronized void remove(final Creature creature) {
+		this.creatures.remove(creature);
+		creature.remove();
+		this.worker.remove(creature);
+	}
+
+
+
+	public synchronized void draw(final GraphicsContext gc) {
 		gc.setFill(Color.WHITE);
 		gc.fillRect(0, 0, 512, 512);
+
+		this.drawGOL(gc);
+
 		gc.setFill(Color.BLACK);
 		gc.fillText("Year: "+this.age, 10, 20);
 		gc.fillText("Population: "+this.creatures.size(), 10, 35);
@@ -100,11 +98,27 @@ public class World {
 		for (final Creature creature : this.creatures) {
 			types.put(creature.species(), types.getOrDefault(creature.species(), 0)+1);
 			if (!creature.isActive()) {
-				gc.setStroke(javafx.scene.paint.Color.rgb(creature.color().red(), creature.color().green(), creature.color().blue()));
-				gc.strokeOval(creature.x()*this.zoom+this.centerX - creature.radius()*this.zoom/2, creature.y()*this.zoom+this.centerY - creature.radius()*this.zoom/2, creature.radius()*this.zoom, creature.radius()*this.zoom);
+				gc.setStroke(javafx.scene.paint.Color.rgb(
+						creature.getColor().red(),
+						creature.getColor().green(),
+						creature.getColor().blue()
+						));
+				gc.strokeOval(
+						creature.getLoaction().x()*this.zoom+this.centerX - creature.getRadius()*this.zoom/2,
+						creature.getLoaction().y()*this.zoom+this.centerY - creature.getRadius()*this.zoom/2,
+						creature.getRadius()*this.zoom, creature.getRadius()*this.zoom
+						);
 			} else {
-				gc.setFill(javafx.scene.paint.Color.rgb(creature.color().red(), creature.color().green(), creature.color().blue()));
-				gc.fillOval(creature.x()*this.zoom+this.centerX - creature.radius()*this.zoom/2, creature.y()*this.zoom+this.centerY - creature.radius()*this.zoom/2, creature.radius()*this.zoom, creature.radius()*this.zoom);
+				gc.setFill(javafx.scene.paint.Color.rgb(
+						creature.getColor().red(),
+						creature.getColor().green(),
+						creature.getColor().blue()
+						));
+				gc.fillOval(
+						creature.getLoaction().x()*this.zoom+this.centerX - creature.getRadius()*this.zoom/2,
+						creature.getLoaction().y()*this.zoom+this.centerY - creature.getRadius()*this.zoom/2,
+						creature.getRadius()*this.zoom, creature.getRadius()*this.zoom
+						);
 			}
 		}
 
@@ -112,12 +126,25 @@ public class World {
 		int i = 1;
 		gc.fillText("Spicies: "+types.size(), 10, 35+(15*i++));
 
-		for (final Entry<String, Double> e: Statistics.INSTANCE.values.entrySet()) {
+		for (final Entry<String, Double> e: Statistics.INSTANCE.values()) {
 			gc.fillText(e.getKey()+": "+this.two.format(e.getValue()), 10, 35+(15*i++));
 		}
 
 
 		this.drawSelected(gc);
+	}
+
+	private void drawGOL(final GraphicsContext gc) {
+
+		gc.setFill(javafx.scene.paint.Color.BLACK);
+		for (int x = 0; x < this.gol.size(); x++) {
+			for (int y = 0; y < this.gol.size(); y++) {
+				if (this.gol.get(x, y)) {
+					gc.fillRect(this.centerX + x*this.zoom, this.centerY + y*this.zoom, 1.0*this.zoom, 1.0*this.zoom);
+				}
+			}
+		}
+
 	}
 
 	private final DecimalFormat zero = new DecimalFormat("#0");
@@ -132,27 +159,38 @@ public class World {
 		gc.setLineWidth(1);
 		gc.setStroke(Color.BLACK);
 		gc.strokeLine(10+64, 512-10-64,
-				this.selected.x()*this.zoom+this.centerX,
-				this.selected.y()*this.zoom+this.centerY
+				this.selected.getLoaction().x()*this.zoom+this.centerX,
+				this.selected.getLoaction().y()*this.zoom+this.centerY
 				);
 
 		gc.setLineWidth(5);
 		gc.setFill(Color.WHITE);
 		gc.fillOval(10, 512-10-128, 128, 128);
-		gc.setStroke(javafx.scene.paint.Color.rgb(this.selected.color().red(), this.selected.color().green(), this.selected.color().blue()));
+		gc.setStroke(javafx.scene.paint.Color.rgb(
+				this.selected.getColor().red(),
+				this.selected.getColor().green(),
+				this.selected.getColor().blue()
+				));
 		gc.strokeOval(10, 512-10-128, 128, 128);
 
 		gc.setLineWidth(2);
 		for(final Neuron n : this.selected.neurons) {
 			if (n.value() > 0.5) {
 				gc.setFill(javafx.scene.paint.Color.rgb(n.color().red(), n.color().green(), n.color().blue()));
-				gc.fillOval(10+64+(n.position().x()/this.selected.radius()*64)-World.neuronSize/2, 512-10-64+(n.position().y()/this.selected.radius()*64)-World.neuronSize/2, World.neuronSize, World.neuronSize);
+				gc.fillOval(
+						10+64+(n.position().x()/this.selected.getRadius()*64)-World.neuronSize/2,
+						512-10-64+(n.position().y()/this.selected.getRadius()*64)-World.neuronSize/2,
+						World.neuronSize, World.neuronSize);
 			} else {
 				gc.setStroke(javafx.scene.paint.Color.rgb(n.color().red(), n.color().green(), n.color().blue()));
-				gc.strokeOval(10+64+(n.position().x()/this.selected.radius()*64)-World.neuronSize/2, 512-10-64+(n.position().y()/this.selected.radius()*64)-World.neuronSize/2, World.neuronSize, World.neuronSize);
+				gc.strokeOval(10+64+(n.position().x()/this.selected.getRadius()*64)-World.neuronSize/2,
+						512-10-64+(n.position().y()/this.selected.getRadius()*64)-World.neuronSize/2,
+						World.neuronSize, World.neuronSize);
 			}
 			gc.setFill(Color.BLACK);
-			gc.fillText(n.type().symbol(), 20+64+(n.position().x()/this.selected.radius()*64)-World.neuronSize/2, 10+512-10-64+(n.position().y()/this.selected.radius()*64)-World.neuronSize/2);
+			gc.fillText(n.type().symbol(),
+					20+64+(n.position().x()/this.selected.getRadius()*64)-World.neuronSize/2,
+					10+512-10-64+(n.position().y()/this.selected.getRadius()*64)-World.neuronSize/2);
 		}
 
 		gc.setFill(Color.BLACK);
@@ -197,14 +235,25 @@ public class World {
 
 	// DONE
 
-	private final CollisionSpace<Creature> space = new CollisionSpace<>(Constants.WORLD_SIZE, 1);
-	public CollisionSpace<Creature> getCollisionSpace() {
+	private final LocationManager<Creature> space = new LocationManager<>(Constants.WORLD_SIZE, 1);
+	public LocationManager<Creature> getCollisionSpace() {
 		return this.space;
 	}
 
-	private final CollisionSpace<Neuron> collectors = new CollisionSpace<>(Constants.WORLD_SIZE, 1);
-	public CollisionSpace<Neuron> getCollectorSpace() {
+	private final Worker worker = new Worker(2);
+
+	@Override
+	public boolean requeue() {
+		return true;
+	}
+
+
+
+	/*
+	private final LocationManager<Neuron> collectors = new LocationManager<>(Constants.WORLD_SIZE, 1);
+	public LocationManager<Neuron> getCollectorSpace() {
 		return this.collectors;
 	}
+	 */
 
 }

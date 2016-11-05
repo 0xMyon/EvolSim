@@ -7,25 +7,38 @@ import java.util.Set;
 import org.junit.Test;
 
 import com.github.myon.evolsim.data.Color;
-import com.github.myon.evolsim.engine.CollisionObject;
-import com.github.myon.evolsim.engine.CollisionSpace;
+import com.github.myon.evolsim.engine.Locateable;
+import com.github.myon.evolsim.engine.Location;
+import com.github.myon.evolsim.engine.LocationManager;
 import com.github.myon.util.Util;
 
 public class TestCollision {
 
-	private static class CollisionDummy extends CollisionObject<CollisionDummy> {
+	private static class CollisionDummy implements Locateable<CollisionDummy> {
 
-		public CollisionDummy(final CollisionSpace<CollisionDummy> space) {
-			super(space);
+		public CollisionDummy() {
+
 		}
 		@Override
-		public double r() {
+		public double getRadius() {
 			return 1.0;
 		}
 		@Override
-		public Color color() {
+		public Color getColor() {
 			return null;
 		}
+
+		private Location<CollisionDummy> location;
+
+		@Override
+		public Location<CollisionDummy> getLoaction() {
+			return this.location;
+		}
+		@Override
+		public void setLoaction(final Location<CollisionDummy> location) {
+			this.location = location;
+		}
+
 
 	}
 
@@ -33,25 +46,27 @@ public class TestCollision {
 	public void test() {
 
 
-		final CollisionSpace<CollisionDummy> space = new CollisionSpace<CollisionDummy>(CollisionSpace.SPACE_ROOT_SIZE, 1);
+		final LocationManager<CollisionDummy> space = new LocationManager<>(512, 1);
 
 		final Set<CollisionDummy> objects = new HashSet<>();
 
 		for(int i = 0; i < 1000; i++) {
-			objects.add(new CollisionDummy(space));
+			final CollisionDummy dummy = new CollisionDummy();
+			objects.add(dummy);
+			dummy.locate(space, 0, 0);
+
 		}
 
 		for (int i = 0;i < 1000; i++) {
 			final Iterator<CollisionDummy> it = objects.iterator();
 			while (it.hasNext()) {
 				final CollisionDummy current = it.next();
-				current.x(Util.nextDouble(-1.0, 1.0));
-				current.y(Util.nextDouble(-1.0, 1.0));
+				current.getLoaction().xy(Util.nextDouble(-1.0, 1.0), Util.nextDouble(-1.0, 1.0));
 				space.checkPoint(
-						Util.nextDouble(0.0, CollisionSpace.SPACE_ROOT_SIZE),
-						Util.nextDouble(0.0, CollisionSpace.SPACE_ROOT_SIZE), null, null);
+						Util.nextDouble(0.0, 512d),
+						Util.nextDouble(0.0, 512d), null, null);
 				if (Util.nextInt(100) == 0) {
-					current.locate(null);
+					current.remove();
 					it.remove();
 				}
 			}

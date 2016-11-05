@@ -8,7 +8,7 @@ public class Queue<T> {
 	private final Deque<T> data;
 	private final Lock lock;
 
-	public Queue(){
+	public Queue() {
 		this.data = new LinkedList<>();
 		this.lock = new Lock(true);
 	}
@@ -16,6 +16,7 @@ public class Queue<T> {
 	public synchronized void add(final T object) {
 		this.data.add(object);
 		this.lock.unlock();
+		System.out.println(Thread.currentThread().getName()+" queueing "+object+" @ "+this.data.size());
 	}
 
 	public T pop() {
@@ -25,7 +26,18 @@ public class Queue<T> {
 			if (!this.data.isEmpty()) {
 				this.lock.unlock();
 			}
+			System.out.println(Thread.currentThread().getName()+" popping "+result+" @ "+this.data.size());
 			return result;
+		}
+	}
+
+	public void remove(final Runnable task) {
+		synchronized (this) {
+			this.data.remove(task);
+			if (!this.data.isEmpty()) {
+				this.lock.unlock();
+			}
+
 		}
 	}
 
