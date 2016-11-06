@@ -12,7 +12,7 @@ public class GameOfLife {
 		this.map = new boolean[size][size];
 		for (int x = 0; x < this.size; x++) {
 			for(int y = 0; y < this.size; y++ ) {
-				if (Util.nextBoolean()) {
+				if (Util.nextInt(3) == 0) {
 					this.set(x, y);
 				} else {
 					this.unset(x, y);

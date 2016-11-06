@@ -8,9 +8,10 @@ import com.github.myon.util.Anything;
 /**
  * @author 0xMyon
  *
- * CollisionObjects may be stored in CollisionSpaces.
+ *         CollisionObjects may be stored in CollisionSpaces.
  *
- * @param <T> concrete implementation
+ * @param <T>
+ *            concrete implementation
  */
 public final class Location<T extends Locateable<T>> extends Anything {
 
@@ -18,7 +19,8 @@ public final class Location<T extends Locateable<T>> extends Anything {
 
 	private final double bounds;
 
-	public Location(final LocationManager<T> manager, final double bounds, final T object, final Double x, final Double y) {
+	public Location(final LocationManager<T> manager, final double bounds, final T object, final Double x,
+			final Double y) {
 		this.object = object;
 		this.bounds = bounds;
 		this.manager = manager;
@@ -36,6 +38,7 @@ public final class Location<T extends Locateable<T>> extends Anything {
 	public double x() {
 		return this.x;
 	}
+
 	public double y() {
 		return this.y;
 	}
@@ -72,6 +75,7 @@ public final class Location<T extends Locateable<T>> extends Anything {
 	}
 
 	private final T object;
+
 	public T getObject() {
 		return this.object;
 	}
@@ -90,7 +94,7 @@ public final class Location<T extends Locateable<T>> extends Anything {
 
 	@Override
 	public String toString() {
-		return this.object.toString() + "["+this.x+","+this.y+"]";
+		return this.object.toString() + "[" + this.x + "," + this.y + "]";
 	}
 
 	@Override
@@ -106,7 +110,5 @@ public final class Location<T extends Locateable<T>> extends Anything {
 		}
 		return false;
 	}
-
-
 
 }

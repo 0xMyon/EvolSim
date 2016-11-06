@@ -16,7 +16,7 @@ public class Queue<T> {
 	public synchronized void add(final T object) {
 		this.data.add(object);
 		this.lock.unlock();
-		System.out.println(Thread.currentThread().getName()+" queueing "+object+" @ "+this.data.size());
+		System.out.println(Thread.currentThread().getName() + " queueing " + object + " @ " + this.data.size());
 	}
 
 	public T pop() {
@@ -26,7 +26,7 @@ public class Queue<T> {
 			if (!this.data.isEmpty()) {
 				this.lock.unlock();
 			}
-			System.out.println(Thread.currentThread().getName()+" popping "+result+" @ "+this.data.size());
+			System.out.println(Thread.currentThread().getName() + " popping " + result + " @ " + this.data.size());
 			return result;
 		}
 	}

@@ -11,9 +11,9 @@ public class MenuFactory {
 		final IMenu main = new Menu("Main");
 		final IMenu alterCreature = new Menu("Alter Creature");
 
-		main.regitser(KeyCode.A, "alter the current selected creature", () -> alterCreature );
+		main.regitser(KeyCode.A, "alter the current selected creature", () -> alterCreature);
 
-		alterCreature.regitser(KeyCode.ESCAPE, "return", () -> main );
+		alterCreature.regitser(KeyCode.ESCAPE, "return", () -> main);
 
 		return main;
 

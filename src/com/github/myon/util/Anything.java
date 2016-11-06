@@ -11,5 +11,4 @@ public abstract class Anything {
 	@Override
 	public abstract boolean equals(Object other);
 
-
 }

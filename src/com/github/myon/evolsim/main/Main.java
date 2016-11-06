@@ -22,16 +22,12 @@ public class Main extends Application {
 
 	@Override
 	public void start(final Stage primaryStage) throws Exception {
-		primaryStage.setTitle( "Evolution!" );
-
-
+		primaryStage.setTitle("Evolution!");
 
 		final Group root = new Group();
 
-
-
-		final Scene theScene = new Scene( root );
-		primaryStage.setScene( theScene );
+		final Scene theScene = new Scene(root);
+		primaryStage.setScene(theScene);
 
 		final World world = new World();
 
@@ -48,10 +44,8 @@ public class Main extends Application {
 		theScene.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			@Override
 			public void handle(final KeyEvent event) {
-				world.move(
-						((event.getCode() == KeyCode.LEFT)?1:0) + ((event.getCode() == KeyCode.RIGHT)?-1:0),
-						((event.getCode() == KeyCode.UP)?1:0) + ((event.getCode() == KeyCode.DOWN)?-1:0)
-						);
+				world.move(((event.getCode() == KeyCode.LEFT) ? 1 : 0) + ((event.getCode() == KeyCode.RIGHT) ? -1 : 0),
+						((event.getCode() == KeyCode.UP) ? 1 : 0) + ((event.getCode() == KeyCode.DOWN) ? -1 : 0));
 				if (event.getCode() == KeyCode.R) {
 					world.selectRandom();
 				}
@@ -59,17 +53,14 @@ public class Main extends Application {
 			}
 		});
 
-		final Canvas canvas = new Canvas( 512, 512 );
-		root.getChildren().add( canvas );
+		final Canvas canvas = new Canvas(512, 512);
+		root.getChildren().add(canvas);
 
 		final GraphicsContext gc = canvas.getGraphicsContext2D();
 
-
-		new AnimationTimer()
-		{
+		new AnimationTimer() {
 			@Override
-			public void handle(final long currentNanoTime)
-			{
+			public void handle(final long currentNanoTime) {
 				world.draw(gc);
 			}
 		}.start();

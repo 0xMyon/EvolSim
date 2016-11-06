@@ -9,11 +9,11 @@ public class Worker {
 	private boolean running = true;
 
 	public Worker(final int threads) {
-		for(int i = 0; i < threads; i++){
+		for (int i = 0; i < threads; i++) {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
-					while(Worker.this.running) {
+					while (Worker.this.running) {
 						final WorkItem task = Worker.this.tasks.pop();
 						task.run();
 						if (task.requeue()) {
@@ -21,7 +21,7 @@ public class Worker {
 						}
 					}
 				}
-			},"MyWorker#"+i).start();
+			}, "MyWorker#" + i).start();
 		}
 	}
 

@@ -32,7 +32,7 @@ public class NeuronData implements Modifiable<NeuronData> {
 
 		this.color = new Color(left.color, right.color);
 
-		switch(Util.nextInt(3)) {
+		switch (Util.nextInt(3)) {
 		case 0:
 			this.threshold = left.threshold;
 			break;
@@ -40,11 +40,11 @@ public class NeuronData implements Modifiable<NeuronData> {
 			this.threshold = right.threshold;
 			break;
 		case 2:
-			this.threshold = (left.threshold + right.threshold)/2;
+			this.threshold = (left.threshold + right.threshold) / 2;
 			break;
 		}
 
-		switch(Util.nextInt(3)) {
+		switch (Util.nextInt(3)) {
 		case 0:
 			this.initial = left.initial;
 			break;
@@ -52,7 +52,7 @@ public class NeuronData implements Modifiable<NeuronData> {
 			this.initial = right.initial;
 			break;
 		case 2:
-			this.initial = (left.initial + right.initial)/2;
+			this.initial = (left.initial + right.initial) / 2;
 			break;
 		}
 
@@ -71,7 +71,7 @@ public class NeuronData implements Modifiable<NeuronData> {
 		if (Util.nextInt(1000) < strength) {
 			this.type = NeuronType.values()[Util.nextInt(NeuronType.values().length)];
 		} else {
-			switch(Util.nextInt(3)) {
+			switch (Util.nextInt(3)) {
 			case 0:
 				this.color.modify(strength);
 				break;
@@ -79,10 +79,10 @@ public class NeuronData implements Modifiable<NeuronData> {
 				this.position.modify(strength);
 				break;
 			case 2:
-				this.initial += Util.nextDouble(-0.01*strength, 0.01*strength);
+				this.initial += Util.nextDouble(-0.01 * strength, 0.01 * strength);
 				break;
 			case 3:
-				this.threshold += Util.nextDouble(-0.01*strength, 0.01*strength);
+				this.threshold += Util.nextDouble(-0.01 * strength, 0.01 * strength);
 				break;
 			}
 		}
@@ -91,21 +91,21 @@ public class NeuronData implements Modifiable<NeuronData> {
 	public NeuronType type() {
 		return this.type;
 	}
+
 	public Color color() {
 		return this.color;
 	}
+
 	public Position position() {
 		return this.position;
 	}
+
 	public double initial() {
 		return this.initial;
 	}
+
 	public double threshold() {
 		return this.threshold;
 	}
-
-
-
-
 
 }

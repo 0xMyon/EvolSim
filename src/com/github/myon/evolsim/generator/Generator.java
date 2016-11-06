@@ -26,5 +26,4 @@ public interface Generator {
 
 	double generateCapacity();
 
-
 }

@@ -5,7 +5,6 @@ import java.util.Objects;
 import com.github.myon.util.Anything;
 import com.github.myon.util.Util;
 
-
 public class Color extends Anything implements Modifiable<Color> {
 
 	private int r;
@@ -18,13 +17,11 @@ public class Color extends Anything implements Modifiable<Color> {
 		this.b = b % 0xFF;
 	}
 
-
 	public Color(final Color that) {
 		this.r = that.r;
 		this.g = that.g;
 		this.b = that.b;
 	}
-
 
 	public Color(final Color left, final Color right) {
 		this.r = left.r ^ right.r;
@@ -32,23 +29,20 @@ public class Color extends Anything implements Modifiable<Color> {
 		this.b = left.b ^ right.b;
 	}
 
-
 	public boolean match(final Color that) {
 		return (that == null) || (this.r & that.r) != 0 || (this.g & that.g) != 0 || (this.b & that.b) != 0;
 	}
 
-
 	@Override
 	public String toString() {
-		return "#"+Integer.toHexString(this.r)+"."+Integer.toHexString(this.g)+"."+Integer.toHexString(this.b);
+		return "#" + Integer.toHexString(this.r) + "." + Integer.toHexString(this.g) + "."
+				+ Integer.toHexString(this.b);
 	}
-
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.r,this.b,this.g);
+		return Objects.hash(this.r, this.b, this.g);
 	}
-
 
 	@Override
 	public boolean equals(final Object other) {
@@ -61,24 +55,23 @@ public class Color extends Anything implements Modifiable<Color> {
 
 	public int strength() {
 		int result = 0;
-		for (int i=0;i<7;i++) {
-			if ((this.r & (1<<i)) != 0) {
+		for (int i = 0; i < 7; i++) {
+			if ((this.r & (1 << i)) != 0) {
 				result++;
 			}
-			if ((this.b & (1<<i)) != 0) {
+			if ((this.b & (1 << i)) != 0) {
 				result++;
 			}
-			if ((this.g & (1<<i)) != 0) {
+			if ((this.g & (1 << i)) != 0) {
 				result++;
 			}
 		}
 		return result;
 	}
 
-
 	@Override
 	public void modify(final int strength) {
-		switch(Util.nextInt(6)) {
+		switch (Util.nextInt(6)) {
 		case 0:
 			this.r |= 1 << Util.nextInt(7);
 			break;
@@ -100,13 +93,14 @@ public class Color extends Anything implements Modifiable<Color> {
 		}
 	}
 
-
 	public int red() {
 		return this.r;
 	}
+
 	public int green() {
 		return this.g;
 	}
+
 	public int blue() {
 		return this.b;
 	}

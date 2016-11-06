@@ -38,6 +38,4 @@ public class Menu implements IMenu {
 		return this.functions.get(code).get();
 	}
 
-
-
 }
